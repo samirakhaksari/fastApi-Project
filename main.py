@@ -1,5 +1,8 @@
 from models import *
-
+# SQLAlchemy setup
+SQLALCHEMY_DATABASE_URL = "sqlite:///./users.db"  # Use your database URL
+engine = create_engine(SQLALCHEMY_DATABASE_URL)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 app = FastAPI()
 
@@ -18,17 +21,27 @@ def sign_up(user: User, db: Session = Depends(get_db)):
     return {"message": "User successfully registered"}
 
 
+# Modified login endpoint with proper token generation
 @app.post("/api/login/", response_model=Token)
 def login(user: User, db: Session = Depends(get_db)):
     db_user = db.query(DBUser).filter(DBUser.username == user.username).first()
     if db_user and db_user.password == user.password:
-        fake_token = user.username + "_token"
-        return {"access_token": fake_token}
+        # Generate and save a proper JWT token
+        access_token = create_jwt_token(data={"sub": user.username}, db=db)
+        return {"access_token": access_token}
     raise HTTPException(status_code=401, detail="Invalid credentials")
 
 
+# Modified get_profile endpoint with Authorization header
 @app.get("/api/profile/", response_model=dict, dependencies=[Depends(get_current_user)])
-def get_profile(current_user: DBUser = Depends(get_current_user)):
+def get_profile(
+    current_user: DBUser = Depends(get_current_user),
+    authorization: str = Header(..., description="Access token in Authorization header"),
+):
+    # Validate the access token, you can also use Depends(get_current_user) instead
+    if authorization != f"Bearer {current_user.token}":
+        raise HTTPException(status_code=401, detail="Invalid access token")
+
     return {"username": current_user.username, "email": current_user.email}
 
 
@@ -68,7 +81,9 @@ def delete_announcement(announcement_id: int, db: Session = Depends(get_db)):
 @app.get("/api/announcements/", response_model=list)
 def list_announcements(db: Session = Depends(get_db)):
     announcements = db.query(DBAnnouncement).all()
-    return announcements
+    if announcements:
+        return announcements
+    raise HTTPException(status_code=404, detail="Announcement not found")
 
 
 # Search Announcements API
@@ -92,4 +107,3 @@ def get_number_of_views(announcement_id: int, db: Session = Depends(get_db)):
 def get_my_announcements(current_user: DBUser = Depends(get_current_user), db: Session = Depends(get_db)):
     user_announcements = db.query(DBAnnouncement).filter(DBAnnouncement.author_id == current_user.id).all()
     return user_announcements
-
