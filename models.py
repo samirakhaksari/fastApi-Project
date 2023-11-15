@@ -6,9 +6,7 @@ from sqlalchemy.orm import sessionmaker, Session
 from pydantic import BaseModel
 import datetime
 from datetime import datetime, timedelta
-
 from jose import JWTError, jwt
-from typing import Optional
 
 # SQLAlchemy setup
 SQLALCHEMY_DATABASE_URL = "sqlite:///./users.db"  # Use your database URL

@@ -1,4 +1,20 @@
 from models import *
+import logging
+from logging.handlers import RotatingFileHandler
+
+log_filename = 'main.log'
+max_log_size = 5 * 1024 * 1024
+log_handler = RotatingFileHandler(log_filename, maxBytes=max_log_size, backupCount=3)
+log_handler.setLevel(logging.DEBUG)
+
+# Create a logger and add the handler
+logger = logging.getLogger('')
+logger.addHandler(log_handler)
+
+# Set the log message format
+formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+log_handler.setFormatter(formatter)
+
 # SQLAlchemy setup
 SQLALCHEMY_DATABASE_URL = "sqlite:///./users.db"  # Use your database URL
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
@@ -35,8 +51,8 @@ def login(user: User, db: Session = Depends(get_db)):
 # Modified get_profile endpoint with Authorization header
 @app.get("/api/profile/", response_model=dict, dependencies=[Depends(get_current_user)])
 def get_profile(
-    current_user: DBUser = Depends(get_current_user),
-    authorization: str = Header(..., description="Access token in Authorization header"),
+        current_user: DBUser = Depends(get_current_user),
+        authorization: str = Header(..., description="Access token in Authorization header"),
 ):
     # Validate the access token, you can also use Depends(get_current_user) instead
     if authorization != f"Bearer {current_user.token}":
