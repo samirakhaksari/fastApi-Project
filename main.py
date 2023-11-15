@@ -55,7 +55,7 @@ def get_profile(
         authorization: str = Header(..., description="Access token in Authorization header"),
 ):
     # Validate the access token, you can also use Depends(get_current_user) instead
-    if authorization != f"Bearer {current_user.token}":
+    if authorization != current_user.token:
         raise HTTPException(status_code=401, detail="Invalid access token")
 
     return {"username": current_user.username, "email": current_user.email}

@@ -66,7 +66,6 @@ def get_db():
         db.close()
 
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 # Secret key to sign JWT
 SECRET_KEY = "samira"
 ALGORITHM = "HS256"
@@ -74,7 +73,7 @@ ALGORITHM = "HS256"
 
 def create_jwt_token(data: dict, db: Session):
     to_encode = data.copy()
-    expires = datetime.utcnow() + timedelta(minutes=15)  # Set your desired expiration time
+    expires = datetime.utcnow() + timedelta(minutes=30)
     to_encode.update({"exp": expires})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
@@ -86,6 +85,10 @@ def create_jwt_token(data: dict, db: Session):
     return encoded_jwt
 
 
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
+
+# Adjusted function for token validation
 def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
     credentials_exception = HTTPException(status_code=401, detail="Could not validate credentials")
 
