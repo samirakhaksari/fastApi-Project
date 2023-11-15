@@ -54,7 +54,7 @@ def get_profile(
         current_user: DBUser = Depends(get_current_user),
         authorization: str = Header(..., description="Access token in Authorization header"),
 ):
-    if authorization != current_user.token:
+    if authorization != f"Bearer {current_user.token}":
         raise HTTPException(status_code=401, detail="Invalid access token")
 
     return {"username": current_user.username, "email": current_user.email}
