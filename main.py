@@ -37,7 +37,7 @@ def sign_up(user: User, db: Session = Depends(get_db)):
     return {"message": "User successfully registered"}
 
 
-# Modified login endpoint with proper token generation
+# login endpoint with proper token generation
 @app.post("/api/login/", response_model=Token)
 def login(user: User, db: Session = Depends(get_db)):
     db_user = db.query(DBUser).filter(DBUser.username == user.username).first()
@@ -48,13 +48,12 @@ def login(user: User, db: Session = Depends(get_db)):
     raise HTTPException(status_code=401, detail="Invalid credentials")
 
 
-# Modified get_profile endpoint with Authorization header
+# get_profile endpoint with Authorization header
 @app.get("/api/profile/", response_model=dict, dependencies=[Depends(get_current_user)])
 def get_profile(
         current_user: DBUser = Depends(get_current_user),
         authorization: str = Header(..., description="Access token in Authorization header"),
 ):
-    # Validate the access token, you can also use Depends(get_current_user) instead
     if authorization != current_user.token:
         raise HTTPException(status_code=401, detail="Invalid access token")
 
