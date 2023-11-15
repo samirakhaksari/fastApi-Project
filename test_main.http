@@ -5,7 +5,11 @@ Accept: application/json
 
 ###
 
-GET http://127.0.0.1:8000/hello/User
+POST http://127.0.0.1:8000/api/sign-up
 Accept: application/json
 
 ###
+
+POST http://127.0.0.1:8000/api/login
+Accept: application/json
+
