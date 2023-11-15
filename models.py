@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 from jose import JWTError, jwt
 
 # SQLAlchemy setup
-SQLALCHEMY_DATABASE_URL = "sqlite:///./users.db"  # Use your database URL
+SQLALCHEMY_DATABASE_URL = "sqlite:///./users.db"
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
